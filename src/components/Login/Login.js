@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Card from '../UI/Card/Card';
 import classes from './Login.module.css';
@@ -11,20 +11,34 @@ const Login = (props) => {
   const [passwordIsValid, setPasswordIsValid] = useState();
   const [formIsValid, setFormIsValid] = useState(false);
 
+  // runs after every render cycle of the component
+  // unless restricted by changes in dependencies (2nd arg)
+  useEffect(() => {
+    // effect runs AFTER returned cleanup, meaning
+    // 500ms must elapse before the timeout function
+    // runs, which is clearing the named timeout
+    const identifier = setTimeout(() => {
+      setFormIsValid(
+        enteredEmail.includes('@') && enteredPassword.trim().length > 6
+      )
+    }, 500);
+
+    // cleanup function runs BEFORE the useEffect, 
+    // cancelling the timeout
+    return () => {
+      clearTimeout(identifier)
+    }
+    // an empty dependency array will run useEffect only on first mount
+    // Otherwise, will fire on changes to dependencies in array:
+  }, [enteredEmail, enteredPassword])
+  
+
   const emailChangeHandler = (event) => {
     setEnteredEmail(event.target.value);
-
-    setFormIsValid(
-      event.target.value.includes('@') && enteredPassword.trim().length > 6
-    );
   };
 
   const passwordChangeHandler = (event) => {
     setEnteredPassword(event.target.value);
-
-    setFormIsValid(
-      event.target.value.trim().length > 6 && enteredEmail.includes('@')
-    );
   };
 
   const validateEmailHandler = () => {
